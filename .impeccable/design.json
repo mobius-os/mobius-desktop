@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-25T00:00:00.000Z",
+  "title": "Design System: Möbius Desktop",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "Primary Ink",
+        "canonical": "#17151c",
+        "tonalRamp": ["oklch(15% 0.012 300)", "oklch(26% 0.012 300)", "oklch(38% 0.011 300)", "oklch(50% 0.010 300)", "oklch(62% 0.009 300)", "oklch(74% 0.008 300)", "oklch(86% 0.006 300)", "oklch(95% 0.004 300)"]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#46424d",
+        "tonalRamp": ["oklch(15% 0.018 300)", "oklch(26% 0.018 300)", "oklch(38% 0.017 300)", "oklch(50% 0.015 300)", "oklch(62% 0.013 300)", "oklch(74% 0.011 300)", "oklch(86% 0.008 300)", "oklch(95% 0.005 300)"]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#6f6a76",
+        "tonalRamp": ["oklch(15% 0.018 300)", "oklch(26% 0.018 300)", "oklch(38% 0.017 300)", "oklch(50% 0.015 300)", "oklch(62% 0.013 300)", "oklch(74% 0.011 300)", "oklch(86% 0.008 300)", "oklch(95% 0.005 300)"]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Fine Line",
+        "canonical": "#ddd9e2",
+        "tonalRamp": ["oklch(15% 0.012 300)", "oklch(26% 0.012 300)", "oklch(38% 0.011 300)", "oklch(50% 0.010 300)", "oklch(62% 0.009 300)", "oklch(74% 0.008 300)", "oklch(86% 0.006 300)", "oklch(95% 0.004 300)"]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Strong Line",
+        "canonical": "#c9c2d2",
+        "tonalRamp": ["oklch(15% 0.020 300)", "oklch(26% 0.020 300)", "oklch(38% 0.019 300)", "oklch(50% 0.017 300)", "oklch(62% 0.015 300)", "oklch(74% 0.012 300)", "oklch(86% 0.009 300)", "oklch(95% 0.005 300)"]
+      },
+      "cloud": {
+        "role": "neutral",
+        "displayName": "Cool Cloud",
+        "canonical": "#f7f6f8",
+        "tonalRamp": ["oklch(15% 0.008 300)", "oklch(26% 0.008 300)", "oklch(38% 0.007 300)", "oklch(50% 0.007 300)", "oklch(62% 0.006 300)", "oklch(74% 0.005 300)", "oklch(86% 0.004 300)", "oklch(95% 0.003 300)"]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#ffffff",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "violet": {
+        "role": "primary",
+        "displayName": "Möbius Violet",
+        "canonical": "#5c36ee",
+        "tonalRamp": ["oklch(15% 0.10 286)", "oklch(26% 0.16 286)", "oklch(38% 0.22 286)", "oklch(50% 0.25 286)", "oklch(62% 0.22 286)", "oklch(74% 0.16 286)", "oklch(86% 0.09 286)", "oklch(95% 0.035 286)"]
+      },
+      "violet-deep": {
+        "role": "primary",
+        "displayName": "Pressed Violet",
+        "canonical": "#4521c7",
+        "tonalRamp": ["oklch(15% 0.11 286)", "oklch(26% 0.17 286)", "oklch(38% 0.23 286)", "oklch(50% 0.25 286)", "oklch(62% 0.22 286)", "oklch(74% 0.16 286)", "oklch(86% 0.09 286)", "oklch(95% 0.035 286)"]
+      },
+      "violet-soft": {
+        "role": "primary",
+        "displayName": "Violet Veil",
+        "canonical": "#ece8ff",
+        "tonalRamp": ["oklch(15% 0.035 286)", "oklch(26% 0.045 286)", "oklch(38% 0.055 286)", "oklch(50% 0.060 286)", "oklch(62% 0.055 286)", "oklch(74% 0.050 286)", "oklch(86% 0.043 286)", "oklch(95% 0.028 286)"]
+      },
+      "plum": {
+        "role": "secondary",
+        "displayName": "Ownership Plum",
+        "canonical": "#2b1058",
+        "tonalRamp": ["oklch(15% 0.060 303)", "oklch(26% 0.110 303)", "oklch(38% 0.145 303)", "oklch(50% 0.160 303)", "oklch(62% 0.145 303)", "oklch(74% 0.110 303)", "oklch(86% 0.070 303)", "oklch(95% 0.030 303)"]
+      },
+      "plum-bright": {
+        "role": "secondary",
+        "displayName": "Living Plum",
+        "canonical": "#6f43df",
+        "tonalRamp": ["oklch(15% 0.080 292)", "oklch(26% 0.130 292)", "oklch(38% 0.180 292)", "oklch(50% 0.210 292)", "oklch(62% 0.190 292)", "oklch(74% 0.140 292)", "oklch(86% 0.080 292)", "oklch(95% 0.030 292)"]
+      },
+      "green": {
+        "role": "tertiary",
+        "displayName": "Ready Green",
+        "canonical": "#147a52",
+        "tonalRamp": ["oklch(15% 0.045 157)", "oklch(26% 0.075 157)", "oklch(38% 0.105 157)", "oklch(50% 0.125 157)", "oklch(62% 0.110 157)", "oklch(74% 0.080 157)", "oklch(86% 0.045 157)", "oklch(95% 0.020 157)"]
+      },
+      "red": {
+        "role": "tertiary",
+        "displayName": "Alert Red",
+        "canonical": "#ad2e3d",
+        "tonalRamp": ["oklch(15% 0.070 20)", "oklch(26% 0.115 20)", "oklch(38% 0.155 20)", "oklch(50% 0.180 20)", "oklch(62% 0.155 20)", "oklch(74% 0.110 20)", "oklch(86% 0.060 20)", "oklch(95% 0.025 20)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Ownership Display", "purpose": "Short promises in the plum ownership field." },
+      "headline": { "displayName": "Task Headline", "purpose": "The primary setup question or screen title." },
+      "title": { "displayName": "Operational Title", "purpose": "Choice, step, and form-section titles." },
+      "body": { "displayName": "Guidance Body", "purpose": "Calm setup explanation and supporting guidance." },
+      "label": { "displayName": "Utility Label", "purpose": "Field labels, metadata emphasis, and compact actions." },
+      "action": { "displayName": "Action Label", "purpose": "Primary control labels with compact vertical rhythm." }
+    },
+    "shadows": [
+      { "name": "featured-choice", "value": "0 16px 40px rgba(69, 33, 199, 0.22)", "purpose": "Ambient lift beneath the recommended hosted path." },
+      { "name": "featured-choice-hover", "value": "0 20px 50px rgba(69, 33, 199, 0.28)", "purpose": "Broader responsive lift when the hosted choice is hovered." },
+      { "name": "primary-action", "value": "0 8px 22px rgba(69, 33, 199, 0.18)", "purpose": "Quiet confidence beneath standard primary actions." },
+      { "name": "selected-toggle", "value": "0 2px 7px rgba(23, 21, 28, 0.1)", "purpose": "Distinguishes the active folder-access segment." }
+    ],
+    "motion": [
+      { "name": "control-state", "value": "160ms ease", "purpose": "Default color, border, and compact-control state changes." },
+      { "name": "feature-lift", "value": "180ms cubic-bezier(.16, 1, .3, 1)", "purpose": "Fast, settled lift for the hosted choice." },
+      { "name": "feature-orbit", "value": "400ms cubic-bezier(.16, 1, .3, 1)", "purpose": "Moves the hosted choice's restrained circular motif." },
+      { "name": "ownership-drift", "value": "10s cubic-bezier(.16, 1, .3, 1) infinite alternate", "purpose": "Slow ambient motion inside the plum ownership field." },
+      { "name": "progress-spin", "value": "800ms linear infinite", "purpose": "Communicates active local-runtime progress." }
+    ],
+    "breakpoints": [
+      { "name": "rail", "value": "980px" },
+      { "name": "compact", "value": "760px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The singular violet action for the next consequential step.",
+      "html": "<button class=\"ds-primary-button\" type=\"button\">Start local Möbius <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></button>",
+      "css": ".ds-primary-button { min-height: 46px; padding: 0 18px; border: 0; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; color: var(--paper, #fff); background: var(--violet, #5c36ee); font-family: 'Inter', system-ui, sans-serif; font-size: 16px; font-weight: 620; box-shadow: 0 8px 22px rgba(69, 33, 199, 0.18); cursor: pointer; transition: background 160ms ease, transform 160ms ease; } .ds-primary-button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; } .ds-primary-button:hover:not(:disabled) { background: var(--violet-deep, #4521c7); transform: translateY(-1px); } .ds-primary-button:focus-visible { outline: 3px solid rgba(92, 54, 238, 0.25); outline-offset: 2px; } .ds-primary-button:active:not(:disabled) { transform: translateY(0); } .ds-primary-button:disabled { cursor: not-allowed; opacity: 0.48; box-shadow: none; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A bordered paper action for additive, recovery, and utility tasks.",
+      "html": "<button class=\"ds-secondary-button\" type=\"button\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>Add folder</button>",
+      "css": ".ds-secondary-button { min-height: 38px; padding: 0 13px; border: 1px solid var(--line-strong, #c9c2d2); border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: var(--ink, #17151c); background: var(--paper, #fff); font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 580; cursor: pointer; transition: background 160ms ease, border-color 160ms ease; } .ds-secondary-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; } .ds-secondary-button:hover { border-color: #a99db8; background: #faf9fc; } .ds-secondary-button:focus-visible { outline: 3px solid rgba(92, 54, 238, 0.25); outline-offset: 2px; } .ds-secondary-button:active { background: #f0edf3; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "A plain, high-clarity field for names and deployment addresses.",
+      "html": "<label class=\"ds-field\"><span>Möbius address</span><input type=\"url\" placeholder=\"https://my-mobius.example\"></label>",
+      "css": ".ds-field { display: block; width: min(100%, 520px); color: var(--ink-soft, #46424d); font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 620; } .ds-field span { display: block; margin-bottom: 8px; } .ds-field input { width: 100%; height: 46px; padding: 0 14px; border: 1px solid var(--line-strong, #c9c2d2); border-radius: 10px; color: var(--ink, #17151c); background: var(--paper, #fff); font: 400 16px/1.4 'Inter', system-ui, sans-serif; outline: none; } .ds-field input::placeholder { color: var(--muted, #6f6a76); } .ds-field input:hover { border-color: #ada4b8; } .ds-field input:focus { border-color: var(--violet, #5c36ee); } .ds-field input:focus-visible { outline: 3px solid rgba(92, 54, 238, 0.25); outline-offset: 2px; }"
+    },
+    {
+      "name": "Back Navigation",
+      "kind": "nav",
+      "description": "A quiet inline return action that precedes every detail heading.",
+      "html": "<button class=\"ds-back\" type=\"button\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m15 18-6-6 6-6\"/></svg>Back</button>",
+      "css": ".ds-back { display: inline-flex; align-items: center; gap: 7px; padding: 6px 0; border: 0; color: var(--ink-soft, #46424d); background: transparent; font-family: 'Inter', system-ui, sans-serif; font-size: 16px; font-weight: 550; cursor: pointer; transition: color 160ms ease; } .ds-back svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; } .ds-back:hover { color: var(--violet, #5c36ee); } .ds-back:focus-visible { outline: 3px solid rgba(92, 54, 238, 0.25); outline-offset: 2px; } .ds-back:active { color: var(--violet-deep, #4521c7); }"
+    },
+    {
+      "name": "Recommendation Chip",
+      "kind": "chip",
+      "description": "A tiny contextual label used only inside the hosted recommendation.",
+      "html": "<span class=\"ds-recommended\">Recommended</span>",
+      "css": ".ds-recommended { display: inline-block; padding: 5px 8px; border-radius: 999px; color: var(--paper, #fff); background: rgba(255, 255, 255, 0.16); font-family: 'Inter', system-ui, sans-serif; font-size: 11px; line-height: 1; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }"
+    },
+    {
+      "name": "Hosted Choice",
+      "kind": "card",
+      "refersTo": "hosted-choice",
+      "description": "The featured decision surface that makes the durable hosted home visibly first.",
+      "html": "<button class=\"ds-hosted-choice\" type=\"button\"><span class=\"ds-hosted-icon\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 0 1 0 9Z\"/></svg></span><span class=\"ds-hosted-copy\"><span><strong>Create a hosted Möbius</strong><em>Recommended</em></span><small>Private, always on, and available from every device.</small></span><svg class=\"ds-hosted-arrow\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></button>",
+      "css": ".ds-hosted-choice { position: relative; overflow: hidden; width: 100%; min-height: 132px; padding: 28px; border: 0; border-radius: 20px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px; color: var(--paper, #fff); background: var(--violet, #5c36ee); font-family: 'Inter', system-ui, sans-serif; text-align: left; box-shadow: 0 16px 40px rgba(69, 33, 199, 0.22); cursor: pointer; transition: transform 180ms cubic-bezier(.16, 1, .3, 1), box-shadow 180ms ease, background 180ms ease; } .ds-hosted-choice::after { content: ''; position: absolute; width: 170px; height: 170px; right: 6%; top: -82%; border: 32px solid rgba(255,255,255,0.08); border-radius: 50%; transition: transform 400ms cubic-bezier(.16, 1, .3, 1); } .ds-hosted-icon { width: 50px; height: 50px; display: grid; place-items: center; border-radius: 14px; background: rgba(255,255,255,0.14); } .ds-hosted-icon svg, .ds-hosted-arrow { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; } .ds-hosted-icon svg { width: 25px; height: 25px; } .ds-hosted-arrow { position: relative; z-index: 1; width: 24px; height: 24px; } .ds-hosted-copy { min-width: 0; display: flex; flex-direction: column; gap: 7px; } .ds-hosted-copy > span { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; } .ds-hosted-copy strong { font-size: 18px; letter-spacing: -0.02em; } .ds-hosted-copy em { padding: 5px 8px; border-radius: 999px; background: rgba(255,255,255,0.16); font-size: 11px; line-height: 1; font-style: normal; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; } .ds-hosted-copy small { color: #e8e1ff; font-size: 14px; line-height: 1.45; } .ds-hosted-choice:hover { transform: translateY(-2px); background: var(--violet-deep, #4521c7); box-shadow: 0 20px 50px rgba(69, 33, 199, 0.28); } .ds-hosted-choice:hover::after { transform: translate(-16px, 34px) scale(1.1); } .ds-hosted-choice:focus-visible { outline: 3px solid rgba(92, 54, 238, 0.25); outline-offset: 2px; } .ds-hosted-choice:active { transform: translateY(0); }"
+    },
+    {
+      "name": "Alternative Rail Choice",
+      "kind": "card",
+      "description": "A flat full-width route for honest alternatives beneath the hosted choice.",
+      "html": "<button class=\"ds-rail-choice\" type=\"button\"><span class=\"ds-rail-icon\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1M14 11a5 5 0 0 0-7.1-.1l-2 2A5 5 0 0 0 12 20l1.1-1.1\"/></svg></span><span class=\"ds-rail-copy\"><strong>Connect an existing Möbius</strong><small>Use a deployment you already own.</small></span><svg class=\"ds-rail-arrow\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></button>",
+      "css": ".ds-rail-choice { width: 100%; padding: 20px 8px; border: 0; border-top: 1px solid var(--line, #ddd9e2); border-bottom: 1px solid var(--line, #ddd9e2); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 18px; color: var(--ink, #17151c); background: transparent; font-family: 'Inter', system-ui, sans-serif; text-align: left; cursor: pointer; } .ds-rail-icon { width: 50px; height: 50px; display: grid; place-items: center; border-radius: 14px; color: var(--violet, #5c36ee); background: var(--violet-soft, #ece8ff); } .ds-rail-icon svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; } .ds-rail-copy { min-width: 0; display: flex; flex-direction: column; gap: 7px; } .ds-rail-copy strong { font-size: 18px; letter-spacing: -0.02em; } .ds-rail-copy small { color: var(--muted, #6f6a76); font-size: 14px; line-height: 1.45; } .ds-rail-arrow { width: 24px; height: 24px; color: var(--muted, #6f6a76); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 160ms ease, color 160ms ease; } .ds-rail-choice:hover { background: #faf9fc; } .ds-rail-choice:hover .ds-rail-arrow { color: var(--violet, #5c36ee); transform: translateX(4px); } .ds-rail-choice:focus-visible { outline: 3px solid rgba(92, 54, 238, 0.25); outline-offset: 2px; } .ds-rail-choice:active { background: #f0edf3; }"
+    },
+    {
+      "name": "Local Durability Warning",
+      "kind": "custom",
+      "description": "A flat violet field that states the local runtime boundary before local controls.",
+      "html": "<aside class=\"ds-local-warning\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 0 1 0 9Z\"/></svg><div><strong>Local mode is not a persistent home for your agent.</strong><p>It is unavailable when this computer or Docker is off.</p></div><button type=\"button\">Choose hosted instead</button></aside>",
+      "css": ".ds-local-warning { padding: 18px; border-radius: 14px; display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 16px; color: #352552; background: #efeaff; font-family: 'Inter', system-ui, sans-serif; } .ds-local-warning > svg { width: 20px; height: 20px; margin-top: 2px; color: var(--violet, #5c36ee); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; } .ds-local-warning strong { font-size: 14px; } .ds-local-warning p { margin: 6px 0 0; max-width: 58ch; color: #665677; font-size: 12px; line-height: 1.5; } .ds-local-warning button { border: 0; padding: 0; color: var(--violet-deep, #4521c7); background: transparent; font-family: inherit; font-size: 12px; font-weight: 620; white-space: nowrap; cursor: pointer; } .ds-local-warning button:hover { text-decoration: underline; } .ds-local-warning button:focus-visible { outline: 3px solid rgba(92, 54, 238, 0.25); outline-offset: 2px; } .ds-local-warning button:active { color: var(--plum, #2b1058); }"
+    },
+    {
+      "name": "Folder Access Toggle",
+      "kind": "custom",
+      "description": "A compact explicit authority control for read-only versus read-and-edit access.",
+      "html": "<div class=\"ds-access-toggle\" role=\"group\" aria-label=\"Folder access\"><button type=\"button\" aria-pressed=\"false\">Read only</button><button class=\"ds-active\" type=\"button\" aria-pressed=\"true\">Read &amp; edit</button></div>",
+      "css": ".ds-access-toggle { display: inline-flex; padding: 3px; border-radius: 9px; background: #f0edf2; font-family: 'Inter', system-ui, sans-serif; } .ds-access-toggle button { height: 28px; padding: 0 9px; border: 0; border-radius: 7px; color: var(--muted, #6f6a76); background: transparent; font-family: inherit; font-size: 10px; font-weight: 600; cursor: pointer; transition: background 160ms ease, color 160ms ease; } .ds-access-toggle button:hover { color: var(--ink, #17151c); } .ds-access-toggle button:focus-visible { outline: 3px solid rgba(92, 54, 238, 0.25); outline-offset: 2px; } .ds-access-toggle button.ds-active { color: var(--ink, #17151c); background: var(--paper, #fff); box-shadow: 0 2px 7px rgba(23, 21, 28, 0.1); } .ds-access-toggle button:active { transform: translateY(1px); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Trustworthy Doorway",
+    "overview": "Möbius Desktop is an inherited Möbius operating surface: calm, direct, and visibly owner-controlled. A deep-plum ownership field carries the canonical white mark and one plain-language promise, while a paper decision plane keeps setup legible and task-first. Broad continuous planes, crisp rails, and a single violet action voice make the interface feel authored without turning it into a marketing page.\n\nHosted leads because it is the durable home, but existing and local paths remain visually present and truthfully described. Character comes from decisive scale, restrained violet geometry, and purposeful motion rather than decoration. The system should always feel like a doorway into a Möbius—not a generic browser-wrapper dashboard.",
+    "keyCharacteristics": [
+      "Deep-plum ownership field paired with a paper/cloud decision plane.",
+      "Möbius violet reserved as the singular action voice.",
+      "Broad continuous surfaces and crisp divider rails instead of card grids.",
+      "Oversized, tightly set Inter headlines with compact operational copy.",
+      "Hosted leads; existing and local alternatives remain honest and usable.",
+      "Motion is restrained, authored, and fully suppressed for reduced-motion users."
+    ],
+    "rules": [
+      { "name": "The One Action Voice Rule", "body": "Violet signals a consequential or selected action; do not distribute it across passive decoration.", "section": "colors" },
+      { "name": "The Ownership Field Rule", "body": "Plum identifies the Möbius-owned side of the doorway and never competes with the paper task plane for interaction.", "section": "colors" },
+      { "name": "The State Meaning Rule", "body": "Green and red communicate state only when shape, iconography, or plain language carries the same meaning.", "section": "colors" },
+      { "name": "The Tight Headline Rule", "body": "Major headlines use strong weight, near-solid leading, and -0.04em tracking; never dilute them with extra labels or decorative type.", "section": "typography" },
+      { "name": "The Plain-Language Rule", "body": "Operational copy stays sentence-case, concrete, and short enough to scan beside the next action.", "section": "typography" },
+      { "name": "The Two-Plane Rule", "body": "Brand and task occupy continuous fields; do not subdivide the paper plane into a generic card grid.", "section": "layout" },
+      { "name": "The Compact-Preserves-Priority Rule", "body": "Responsive layout may stack and wrap, but hosted remains first, warnings remain before local controls, and actions stay adjacent to the objects they affect.", "section": "layout" },
+      { "name": "The Flat-by-Default Rule", "body": "If a border, tonal field, or whitespace can establish the hierarchy, do not add a shadow.", "section": "elevation" },
+      { "name": "The One Broad Gesture Rule", "body": "Use one large cropped violet form to give the ownership field life; do not repeat circles, blobs, or ornaments across the task plane.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do keep plum for ownership, paper for decisions, and violet for consequential action.",
+      "Do lead with the hosted path while keeping existing and local routes fully visible and plainly described.",
+      "Do use divider rails for operational lists and tonal fields for warnings, reminders, and status.",
+      "Do retain the canonical white Möbius mark and Inter product typography.",
+      "Do preserve keyboard focus, non-color status cues, compact-window hierarchy, and reduced-motion behavior.",
+      "Do let one restrained motion or geometric gesture carry character while the workflow remains still and legible."
+    ],
+    "donts": [
+      "Don't turn the task plane into a dashboard of floating cards or a generic embedded-browser frame.",
+      "Don't use violet as ambient decoration, secondary metadata, or passive status; its rarity creates authority.",
+      "Don't make local mode look equivalent to an always-on home or bury its durability warning.",
+      "Don't introduce alternate display faces, gradients, glass effects, or ornamental icon families.",
+      "Don't add shadows to ordinary rows, fields, warnings, or neutral containers.",
+      "Don't let compact layouts crop actions, truncate essential guidance, or reorder decision priority."
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "name": "@mobius-os/desktop",
+  "productName": "Möbius Desktop",
+  "version": "0.1.0",
+  "description": "Cross-platform launcher and local Docker companion for Möbius.",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": ".vite/build/main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mobius-os/mobius-desktop.git"
+  },
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "renderer:dev": "vite --config vite.renderer.config.ts",
+    "renderer:build": "vite build --config vite.renderer.config.ts",
+    "icons": "node scripts/build-icons.mjs",
+    "verify": "npm run typecheck && npm test && npm run renderer:build && npm run test:e2e && npm run package"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.11.2",
+    "@electron-forge/maker-deb": "^7.11.2",
+    "@electron-forge/maker-rpm": "^7.11.2",
+    "@electron-forge/maker-squirrel": "^7.11.2",
+    "@electron-forge/maker-zip": "^7.11.2",
+    "@electron-forge/plugin-vite": "^7.11.2",
+    "@electron-forge/shared-types": "^7.11.2",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^6.0.0",
+    "electron": "^44.0.0",
+    "electron-fuses-latest": "npm:@electron/fuses@^2.1.3",
+    "png2icons": "^2.0.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11"
+  },
+  "allowScripts": {
+    "electron-winstaller@5.4.4": true
+  }
+}
