@@ -24,7 +24,7 @@ export interface LocalRuntimeSettings {
 }
 
 export interface DesktopState {
-  version: 1;
+  version: 2;
   instances: SavedInstance[];
   localRuntime: LocalRuntimeSettings;
 }
@@ -38,6 +38,7 @@ export interface LocalRuntimeStatus {
   container: ContainerState;
   detail: string;
   origin: string;
+  image: string;
 }
 
 export type LocalProgressPhase =
@@ -56,7 +57,32 @@ export interface SaveInstanceInput {
 }
 
 export interface StartLocalInput {
-  sharedFolders: SharedFolder[];
+  folders: Array<Pick<SharedFolder, 'id' | 'readOnly'>>;
+}
+
+export interface DesktopDiagnostics {
+  appVersion: string;
+  operatingSystem: string;
+  architecture: string;
+  stateVersion: number;
+  image: string;
+  port: number;
+  docker: DockerAvailability;
+  dockerVersion: string | null;
+  container: ContainerState;
+}
+
+export interface UpdateCheck {
+  configured: boolean;
+  currentVersion: string;
+  available: boolean;
+  version: string | null;
+  body: string | null;
+}
+
+export interface UpdateInstallProgress {
+  downloadedBytes: number;
+  totalBytes: number | null;
 }
 
 export interface DesktopApi {
@@ -67,15 +93,13 @@ export interface DesktopApi {
   openInstanceInBrowser(id: string): Promise<void>;
   openHostedSetup(): Promise<void>;
   openExternal(url: string): Promise<void>;
-  chooseFolder(existing: SharedFolder[]): Promise<SharedFolder | null>;
+  chooseFolder(): Promise<SharedFolder | null>;
   getLocalStatus(): Promise<LocalRuntimeStatus>;
   startLocal(input: StartLocalInput): Promise<SavedInstance>;
   stopLocal(): Promise<LocalRuntimeStatus>;
+  getDiagnostics(): Promise<DesktopDiagnostics>;
+  checkForUpdate(): Promise<UpdateCheck>;
+  installUpdate(expectedVersion: string): Promise<void>;
   onLocalProgress(listener: (phase: LocalProgressPhase) => void): () => void;
-}
-
-declare global {
-  interface Window {
-    mobiusDesktop?: DesktopApi;
-  }
+  onUpdateProgress(listener: (progress: UpdateInstallProgress) => void): () => void;
 }

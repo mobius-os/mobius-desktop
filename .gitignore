@@ -5,5 +5,8 @@ out/
 playwright-report/
 test-results/
 coverage/
+src-tauri/tauri.release.generated.json
+src-tauri/gen/schemas/
+src-tauri/target/
 *.log
 .DS_Store

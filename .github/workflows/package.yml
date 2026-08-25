@@ -1,4 +1,4 @@
-name: Package desktop app
+name: Build desktop installers
 
 on:
   workflow_dispatch:
@@ -11,20 +11,47 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+        include:
+          - platform: macos-latest
+            label: macos-arm64
+            args: --target aarch64-apple-darwin --bundles app,dmg
+            rust_targets: aarch64-apple-darwin
+          - platform: macos-latest
+            label: macos-x64
+            args: --target x86_64-apple-darwin --bundles app,dmg
+            rust_targets: x86_64-apple-darwin
+          - platform: windows-latest
+            label: windows-x64
+            args: --bundles nsis
+            rust_targets: ''
+          - platform: ubuntu-22.04
+            label: linux-x64
+            args: --bundles deb,appimage
+            rust_targets: ''
+    runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Install Linux desktop dependencies
+        if: startsWith(matrix.platform, 'ubuntu-')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run package
-      - uses: actions/upload-artifact@v7
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
         with:
-          name: mobius-desktop-${{ matrix.os }}
-          path: out/
-          if-no-files-found: error
+          toolchain: 1.98.0
+          targets: ${{ matrix.rust_targets }}
+      - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: ./src-tauri -> target
+          key: ${{ matrix.label }}
+      - run: npm ci
+      - run: npm run version:check
+      - uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
+        with:
+          args: ${{ matrix.args }}
+          uploadWorkflowArtifacts: true
+          workflowArtifactNamePattern: mobius-desktop-${{ matrix.label }}-[bundle]

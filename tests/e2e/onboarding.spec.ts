@@ -19,10 +19,10 @@ test('local setup keeps the persistence warning and folder authority visible', a
   await expect(page.getByRole('heading', { name: 'Run Möbius on this computer' })).toBeVisible();
   await expect(page.getByText('Local mode is not a persistent home for your agent.')).toBeVisible();
   await expect(page.getByText('/Users/you/Projects')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Read & edit' })).toHaveClass(/is-active/);
+  await expect(page.getByRole('button', { name: 'Read only' })).toHaveClass(/is-active/);
   await page.getByText('Where the agent sees these folders').click();
   await expect(page.getByText('/data/shared/desktop/projects-preview')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Read & edit' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Read only' })).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('local Docker recovery matches the detected state', async ({ page }) => {
@@ -54,4 +54,22 @@ test('saved deployments remain distinct and local status is honest', async ({ pa
   await expect(page.getByRole('heading', { name: 'Local Möbius' })).toBeVisible();
   await expect(page.getByText('Running')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Open My Möbius in browser' })).toBeVisible();
+});
+
+test('a stopped local deployment has an obvious route back to setup', async ({ page }) => {
+  await page.goto('/?scenario=home&container=stopped');
+  await expect(page.getByText('Stopped · data kept')).toBeVisible();
+  await page.getByRole('button', { name: 'Start', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Run Möbius on this computer' })).toBeVisible();
+});
+
+test('about keeps desktop authority, diagnostics, and update consent visible', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'About, diagnostics & updates' }).click();
+  await expect(page.getByRole('heading', { name: 'About Möbius Desktop' })).toBeVisible();
+  await expect(page.getByText('Remote deployments stay isolated')).toBeVisible();
+  await expect(page.getByText('Each folder starts read-only unless you explicitly allow editing.')).toBeVisible();
+  await expect(page.getByText('0.1.0-preview')).toBeVisible();
+  await page.getByRole('button', { name: 'Check for updates' }).click();
+  await expect(page.getByText('No update channel in this build')).toBeVisible();
 });

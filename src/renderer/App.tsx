@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
 import type {
+  DesktopDiagnostics,
   DesktopState,
   LocalProgressPhase,
   LocalRuntimeStatus,
   SavedInstance,
   SharedFolder,
+  UpdateCheck,
+  UpdateInstallProgress,
 } from '../shared/contracts';
 import { desktopApi, previewScreen } from './bridge';
 import {
@@ -22,7 +25,7 @@ import {
   TrashIcon,
 } from './icons';
 
-type Screen = 'home' | 'hosted' | 'existing' | 'local';
+type Screen = 'home' | 'hosted' | 'existing' | 'local' | 'about';
 
 const api = desktopApi();
 
@@ -46,9 +49,17 @@ function kindLabel(kind: SavedInstance['kind']): string {
   return 'Existing deployment';
 }
 
+function formatBytes(value: number): string {
+  if (value < 1_024) return `${value} B`;
+  if (value < 1_048_576) return `${(value / 1_024).toFixed(1)} KB`;
+  return `${(value / 1_048_576).toFixed(1)} MB`;
+}
+
 function BrandPanel({ screen }: { screen: Screen }) {
   const detail = screen === 'local'
     ? 'A focused workspace on this computer, with only the folders you choose.'
+    : screen === 'about'
+      ? 'Clear boundaries, visible health, and updates you choose when to install.'
     : screen === 'existing'
       ? 'Bring the Möbius you already own into one familiar desktop doorway.'
       : screen === 'hosted'
@@ -87,7 +98,13 @@ function BackButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-function ChoiceHome({ onChoose }: { onChoose: (screen: Exclude<Screen, 'home'>) => void }) {
+function ChoiceHome({
+  onChoose,
+  onAbout,
+}: {
+  onChoose: (screen: 'hosted' | 'existing' | 'local') => void;
+  onAbout: () => void;
+}) {
   return (
     <section className="choice-view" aria-labelledby="choice-title">
       <div className="view-heading">
@@ -126,6 +143,7 @@ function ChoiceHome({ onChoose }: { onChoose: (screen: Exclude<Screen, 'home'>) 
         </button>
       </div>
       <p className="choice-note">Your provider connection and personal data stay inside the Möbius you choose.</p>
+      <button className="about-link" type="button" onClick={onAbout}>About, diagnostics & updates</button>
     </section>
   );
 }
@@ -139,6 +157,9 @@ function SavedHome({
   onRemove,
   onAdd,
   onStopLocal,
+  onManageLocal,
+  onAbout,
+  stoppingLocal,
 }: {
   state: DesktopState;
   localStatus: LocalRuntimeStatus | null;
@@ -148,6 +169,9 @@ function SavedHome({
   onRemove: (instance: SavedInstance) => void;
   onAdd: () => void;
   onStopLocal: () => void;
+  onManageLocal: () => void;
+  onAbout: () => void;
+  stoppingLocal: boolean;
 }) {
   return (
     <section className="saved-view" aria-labelledby="saved-title">
@@ -184,12 +208,12 @@ function SavedHome({
               </div>
               <div className="instance-actions">
                 {isLocal && localRunning && (
-                  <button className="icon-button" type="button" aria-label="Stop local Möbius" title="Stop local Möbius" onClick={onStopLocal}>
+                  <button className="icon-button" type="button" disabled={stoppingLocal} aria-label="Stop local Möbius" title="Stop local Möbius" onClick={onStopLocal}>
                     <StopIcon />
                   </button>
                 )}
-                <button className="primary-button primary-button--compact" type="button" disabled={openingId === instance.id || (isLocal && !localRunning)} onClick={() => onOpen(instance)}>
-                  {openingId === instance.id ? 'Opening…' : 'Open'}
+                <button className="primary-button primary-button--compact" type="button" disabled={openingId === instance.id || stoppingLocal} onClick={() => isLocal && !localRunning ? onManageLocal() : onOpen(instance)}>
+                  {openingId === instance.id ? 'Opening…' : isLocal && !localRunning ? 'Start' : 'Open'}
                 </button>
                 <button className="icon-button" type="button" disabled={isLocal && !localRunning} aria-label={`Open ${instance.name} in browser`} title="Open in browser" onClick={() => onOpenInBrowser(instance)}>
                   <ExternalIcon />
@@ -211,6 +235,7 @@ function SavedHome({
         </div>
         <button type="button" onClick={() => onAdd()}>Explore options <ArrowRightIcon /></button>
       </div>
+      <button className="about-link about-link--saved" type="button" onClick={onAbout}>About, diagnostics & updates</button>
     </section>
   );
 }
@@ -348,7 +373,7 @@ function LocalScreen({
   async function addFolder() {
     setError('');
     try {
-      const selected = await api.chooseFolder(folders);
+      const selected = await api.chooseFolder();
       if (selected && !folders.some((folder) => folder.id === selected.id)) {
         setFolders((current) => [...current, selected]);
       }
@@ -361,7 +386,9 @@ function LocalScreen({
     setStarting(true);
     setError('');
     try {
-      await api.startLocal({ sharedFolders: folders });
+      await api.startLocal({
+        folders: folders.map(({ id, readOnly }) => ({ id, readOnly })),
+      });
       await refreshStatus();
       await onReady();
     } catch (startError) {
@@ -404,14 +431,14 @@ function LocalScreen({
       <BackButton onClick={onBack} />
       <div className="view-heading view-heading--detail">
         <h1 id="local-title">Run Möbius on this computer</h1>
-        <p>Docker keeps this copy separate and lets its agent work in folders you choose.</p>
+        <p>A Docker-compatible engine keeps this copy separate and lets its agent work in folders you choose.</p>
       </div>
 
       <div className="local-warning">
         <CloudIcon />
         <div>
           <strong>Local mode is not a persistent home for your agent.</strong>
-          <p>It is unavailable when this computer or Docker is off, and resetting Docker data can remove it. Hosted Möbius is preferred for an always-on home.</p>
+          <p>It keeps running while this computer and its container engine are on, but disappears from the internet when either is off. Resetting container data can remove it. Hosted Möbius is preferred for an always-on home.</p>
         </div>
         <button type="button" onClick={() => void chooseHosted()}>Choose hosted instead <ExternalIcon /></button>
       </div>
@@ -425,10 +452,10 @@ function LocalScreen({
           <p>{dockerReady
             ? `Version ${status.dockerVersion ?? 'available'} · local data will use the “mobius-desktop-data” volume.`
             : status?.docker === 'missing'
-              ? 'Install Docker Desktop, open it, then check again.'
+              ? 'Install Docker Desktop or another Docker-compatible engine, start it, then check again.'
               : status?.docker === 'stopped'
-                ? 'Open Docker Desktop and wait for its engine to start, then check again.'
-                : 'Check again. If the problem continues, restart Docker Desktop.'}</p>
+                ? 'Start your container engine and wait for it to become ready, then check again.'
+                : 'Resolve the Docker issue above, then check again.'}</p>
         </div>
         {!dockerReady && status !== null && (
           <div className="docker-actions">
@@ -444,7 +471,7 @@ function LocalScreen({
         <div className="section-heading">
           <div>
             <h2>Folders the agent can use</h2>
-            <p>Only the folders listed here enter the local container.</p>
+            <p>Folders begin read-only. Read & edit lets the local agent change or delete files inside that folder.</p>
           </div>
           <button className="secondary-button secondary-button--compact" type="button" onClick={() => void addFolder()}>
             <PlusIcon /> Add folder
@@ -493,6 +520,143 @@ function LocalScreen({
   );
 }
 
+function AboutScreen({ onBack }: { onBack: () => void }) {
+  const [diagnostics, setDiagnostics] = useState<DesktopDiagnostics | null>(null);
+  const [update, setUpdate] = useState<UpdateCheck | null>(null);
+  const [updateProgress, setUpdateProgress] = useState<UpdateInstallProgress | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [installing, setInstalling] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    api.getDiagnostics().then(setDiagnostics).catch((diagnosticError) => setError(errorMessage(diagnosticError)));
+    return api.onUpdateProgress(setUpdateProgress);
+  }, []);
+
+  async function checkForUpdate() {
+    setChecking(true);
+    setError('');
+    try {
+      setUpdate(await api.checkForUpdate());
+    } catch (updateError) {
+      setError(errorMessage(updateError));
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  async function installUpdate() {
+    if (!update?.version) return;
+    setInstalling(true);
+    setUpdateProgress(null);
+    setError('');
+    try {
+      await api.installUpdate(update.version);
+    } catch (updateError) {
+      setError(errorMessage(updateError));
+      setInstalling(false);
+    }
+  }
+
+  async function copyDiagnostics() {
+    if (!diagnostics) return;
+    const summary = [
+      `Möbius Desktop ${diagnostics.appVersion}`,
+      `${diagnostics.operatingSystem} ${diagnostics.architecture}`,
+      `State format: ${diagnostics.stateVersion}`,
+      `Docker: ${diagnostics.docker}${diagnostics.dockerVersion ? ` ${diagnostics.dockerVersion}` : ''}`,
+      `Container: ${diagnostics.container}`,
+      `Local port: ${diagnostics.port}`,
+      `Image: ${diagnostics.image}`,
+    ].join('\n');
+    try {
+      await navigator.clipboard.writeText(summary);
+      setCopied(true);
+    } catch {
+      setError('The operating system did not let Möbius Desktop copy the diagnostics.');
+    }
+  }
+
+  async function openReleases() {
+    setError('');
+    try {
+      await api.openExternal('https://github.com/mobius-os/mobius-desktop/releases');
+    } catch (openError) {
+      setError(`Your browser did not open. ${errorMessage(openError)}`);
+    }
+  }
+
+  const progressLabel = updateProgress
+    ? updateProgress.totalBytes
+      ? `${formatBytes(updateProgress.downloadedBytes)} of ${formatBytes(updateProgress.totalBytes)}`
+      : formatBytes(updateProgress.downloadedBytes)
+    : null;
+
+  return (
+    <section className="detail-view about-view" aria-labelledby="about-title">
+      <BackButton onClick={onBack} />
+      <div className="view-heading view-heading--detail">
+        <h1 id="about-title">About Möbius Desktop</h1>
+        <p>See what this app can reach, check its local runtime, and choose when signed updates are installed.</p>
+      </div>
+
+      {error && <p className="form-error" role="alert">{error}</p>}
+
+      <section className="about-section" aria-labelledby="authority-title">
+        <div className="about-section__heading">
+          <div><h2 id="authority-title">Desktop authority</h2><p>The boundary is deliberately small.</p></div>
+        </div>
+        <ul className="authority-list">
+          <li><CheckIcon /><span><strong>Remote deployments stay isolated</strong><small>They cannot call Docker or read folders on this computer.</small></span></li>
+          <li><CheckIcon /><span><strong>Local folders require a picker</strong><small>Each folder starts read-only unless you explicitly allow editing.</small></span></li>
+          <li><CheckIcon /><span><strong>Local data is never silently deleted</strong><small>Stopping, reconnecting, or updating keeps the named Docker volume.</small></span></li>
+        </ul>
+      </section>
+
+      <section className="about-section" aria-labelledby="updates-title">
+        <div className="about-section__heading about-section__heading--actions">
+          <div><h2 id="updates-title">Updates</h2><p>Release packages are verified before installation.</p></div>
+          <button className="secondary-button secondary-button--compact" type="button" disabled={checking || installing} onClick={() => void checkForUpdate()}>
+            {checking ? 'Checking…' : 'Check for updates'}
+          </button>
+        </div>
+        <div className="update-state" role="status" aria-live="polite">
+          {installing ? (
+            <><span className="progress-spinner" /><div><strong>Installing the signed update…</strong><p>{progressLabel ?? 'Preparing the download'} · the app will reopen when it is ready.</p></div></>
+          ) : update?.available ? (
+            <><span className="status-orb status-orb--ready"><CheckIcon /></span><div><strong>Version {update.version} is ready</strong><p>{update.body || 'A signed Möbius Desktop update is available.'}</p></div><button className="primary-button primary-button--compact" type="button" onClick={() => void installUpdate()}>Install & reopen</button></>
+          ) : update && !update.configured ? (
+            <><span className="status-orb status-orb--quiet">—</span><div><strong>No update channel in this build</strong><p>Development builds stay disconnected. Public release builds receive their signed channel during packaging.</p></div></>
+          ) : update ? (
+            <><span className="status-orb status-orb--ready"><CheckIcon /></span><div><strong>You are up to date</strong><p>Version {update.currentVersion} is the newest signed release available.</p></div></>
+          ) : (
+            <><span className="status-orb status-orb--quiet">i</span><div><strong>Updates happen only when you choose</strong><p>Checking does not change your app. Installation always requires a separate click.</p></div></>
+          )}
+        </div>
+        <button className="about-link" type="button" onClick={() => void openReleases()}>View public releases <ExternalIcon /></button>
+      </section>
+
+      <section className="about-section" aria-labelledby="diagnostics-title">
+        <div className="about-section__heading about-section__heading--actions">
+          <div><h2 id="diagnostics-title">Diagnostics</h2><p>Useful when something local is not working.</p></div>
+          <button className="secondary-button secondary-button--compact" type="button" disabled={!diagnostics} onClick={() => void copyDiagnostics()}>{copied ? 'Copied' : 'Copy summary'}</button>
+        </div>
+        {diagnostics ? (
+          <dl className="diagnostics-grid">
+            <div><dt>App version</dt><dd>{diagnostics.appVersion}</dd></div>
+            <div><dt>Computer</dt><dd>{diagnostics.operatingSystem} · {diagnostics.architecture}</dd></div>
+            <div><dt>Docker</dt><dd>{diagnostics.dockerVersion ? `${diagnostics.docker} · ${diagnostics.dockerVersion}` : diagnostics.docker}</dd></div>
+            <div><dt>Local container</dt><dd>{diagnostics.container}</dd></div>
+            <div><dt>Local address</dt><dd>127.0.0.1:{diagnostics.port}</dd></div>
+            <div className="diagnostics-grid__wide"><dt>Pinned image</dt><dd><code>{diagnostics.image}</code></dd></div>
+          </dl>
+        ) : <p className="diagnostics-loading" role="status">Reading diagnostics…</p>}
+      </section>
+    </section>
+  );
+}
+
 export function App() {
   const [screen, setScreen] = useState<Screen>(previewScreen ?? 'home');
   const [state, setState] = useState<DesktopState | null>(null);
@@ -500,6 +664,7 @@ export function App() {
   const [loadingError, setLoadingError] = useState('');
   const [openingId, setOpeningId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [stoppingLocal, setStoppingLocal] = useState(false);
 
   async function loadState() {
     const next = await api.getState();
@@ -556,10 +721,13 @@ export function App() {
   }
 
   async function stopLocal() {
+    setStoppingLocal(true);
     try {
       setLocalStatus(await api.stopLocal());
     } catch (error) {
       setLoadingError(errorMessage(error));
+    } finally {
+      setStoppingLocal(false);
     }
   }
 
@@ -588,7 +756,7 @@ export function App() {
     <Shell screen={screen}>
       {loadingError && <div className="top-error" role="alert">{loadingError}<button type="button" onClick={() => setLoadingError('')}>Dismiss</button></div>}
       {screen === 'home' && (showChoices
-        ? <ChoiceHome onChoose={setScreen} />
+        ? <ChoiceHome onChoose={setScreen} onAbout={() => setScreen('about')} />
         : <SavedHome
             state={state}
             localStatus={localStatus}
@@ -598,6 +766,9 @@ export function App() {
             onRemove={(instance) => void removeInstance(instance)}
             onAdd={() => setAdding(true)}
             onStopLocal={() => void stopLocal()}
+            onManageLocal={() => setScreen('local')}
+            onAbout={() => setScreen('about')}
+            stoppingLocal={stoppingLocal}
           />)}
       {screen === 'hosted' && <ConnectScreen kind="hosted" onBack={goHome} onSaved={connected} />}
       {screen === 'existing' && <ConnectScreen kind="existing" onBack={goHome} onSaved={connected} />}
@@ -610,6 +781,7 @@ export function App() {
           refreshStatus={refreshLocalStatus}
         />
       )}
+      {screen === 'about' && <AboutScreen onBack={goHome} />}
     </Shell>
   );
 }

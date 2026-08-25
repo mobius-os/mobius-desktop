@@ -4,14 +4,14 @@
 
 ## Platform
 
-web
+desktop (Tauri 2 system webviews with a React launcher)
 
 ## Stack
 
-Delegated: Electron Forge with React, TypeScript, and Vite. This stays close to
-the existing Möbius frontend, produces Windows/macOS/Linux packages from one
-codebase, and keeps Docker and filesystem authority in a narrow desktop-owned
-process rather than introducing a second native language stack.
+Tauri 2 with React, TypeScript, Vite, and a narrow Rust core. The launcher stays
+close to the existing Möbius frontend while the operating system's webview keeps
+packages smaller than bundling a browser engine. Docker, saved deployment state,
+updates, and folder authority remain outside all deployment-controlled content.
 
 ## Users
 
@@ -39,8 +39,8 @@ can receive explicitly shared folders from the desktop.
 - **Create a hosted Möbius:** sign in through `mobius.you`, create a private
   Railway deployment, then connect it to the desktop app.
 - **Connect an existing Möbius:** enter its HTTPS address (or a loopback HTTP
-  address for local development), verify it is a Möbius, and retain its isolated
-  desktop web session.
+  address for local development), verify it is a Möbius, and retain its login in
+  the desktop web session.
 - **Run locally with Docker:** verify Docker is available, start the official
   Möbius image with a named data volume, optionally share chosen folders, and
   open the loopback-only instance.
@@ -57,15 +57,17 @@ can receive explicitly shared folders from the desktop.
   user-supplied remote deployment.
 - Local file access is opt-in by folder. Each approved host folder is mounted
   only into the launcher-managed local container under a clear path.
-- Remote Möbius content receives no Node.js, Electron, shell, Docker, or local
+- Remote Möbius content receives no Node.js, Tauri command, shell, Docker, or local
   filesystem capability. Authentication remains owned by each deployment and
   its web session; the launcher does not collect or store passwords or bearer
   tokens.
 - The local runtime requires a working Docker installation. Docker installation
   itself remains the operating system or Docker Desktop's responsibility.
-- Packaging should support Windows, macOS, and Linux. Signing, notarization,
-  auto-update publication, and store distribution are later release work, not
-  implied by an unsigned MVP package.
+- Packaging workflows cover Windows, macOS, and Linux, with a signed static
+  update channel. Real public releases still require updater signing material,
+  Apple signing and notarization credentials, and Windows code-signing
+  credentials; an unsigned or ad-hoc development package does not imply a
+  trusted public release.
 
 ## Brand Commitments
 
@@ -80,8 +82,9 @@ can receive explicitly shared folders from the desktop.
 - The existing Möbius React shell and canonical icons are available in the
   `mobius-os/mobius` source.
 - `mobius.you` currently owns hosted Railway creation and managed identity.
-- The official local image is `ghcr.io/mobius-os/mobius:main`; loopback HTTP is
-  a supported self-hosted origin.
+- The official local image is pinned to
+  `ghcr.io/mobius-os/mobius@sha256:8a1c8f876fb598c1a2f130dfe2333ef2b9e6c52876fbb7749e7524e39bcbef5a`;
+  loopback HTTP is a supported self-hosted origin.
 - There are no customer claims, benchmarks, signing certificates, release
   channels, or automatic desktop-to-`mobius.you` callback contract to invent.
 
