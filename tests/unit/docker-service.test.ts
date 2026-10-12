@@ -87,7 +87,6 @@ describe('starting the local Möbius', () => {
   test('a stopped container with unchanged settings and image is started as-is', async () => {
     const { calls, service } = fakeDocker({ status: 'exited', labels: ownedLabels(), image: 'sha256:current' }, 'sha256:current');
     const status = await service.start(settings);
-    await service.settleBackgroundWork();
     expect(status.container).toBe('running');
     const blocking = calls.slice(0, calls.indexOf(`container start ${LOCAL_CONTAINER_NAME}`) + 1);
     expect(blocking.some((call) => call.startsWith('image pull'))).toBe(false);
@@ -100,7 +99,6 @@ describe('starting the local Möbius', () => {
     const labels = { ...ownedLabels(), [SETTINGS_LABEL_KEY]: 'older-settings' };
     const { calls, service } = fakeDocker({ status: 'exited', labels, image: 'sha256:current' }, 'sha256:current');
     await service.start(settings);
-    await service.settleBackgroundWork();
     const createAt = calls.findIndex((call) => call.startsWith('container create'));
     expect(calls.findIndex((call) => call.startsWith(`container rm --force ${LOCAL_CONTAINER_NAME}`))).toBeLessThan(createAt);
     expect(calls.slice(0, createAt).some((call) => call.startsWith('image pull'))).toBe(false);

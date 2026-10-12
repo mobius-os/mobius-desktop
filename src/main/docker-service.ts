@@ -117,8 +117,6 @@ export class DockerService {
     ) => new Promise((resolve) => setTimeout(resolve, milliseconds)),
   ) {}
 
-  private backgroundPull: Promise<void> | null = null;
-
   private async docker(args: readonly string[], timeoutMs?: number): Promise<CommandResult> {
     return this.runner('docker', args, timeoutMs);
   }
@@ -232,15 +230,7 @@ export class DockerService {
   // no longer matches the container's image id, so the next start recreates
   // the container from it (keeping the data volume).
   private pullInBackground(image: string): void {
-    if (this.backgroundPull) return;
-    this.backgroundPull = this.docker(['image', 'pull', image], 10 * 60_000)
-      .then(() => undefined, () => undefined)
-      .finally(() => { this.backgroundPull = null; });
-  }
-
-  // Waits for a background image refresh (used by tests).
-  async settleBackgroundWork(): Promise<void> {
-    await this.backgroundPull;
+    this.docker(['image', 'pull', image], 10 * 60_000).catch(() => undefined);
   }
 
   private async waitUntilReady(origin: string): Promise<void> {
@@ -284,37 +274,38 @@ export class DockerService {
     }
 
     const origin = `http://127.0.0.1:${settings.port}`;
-    if (
-      existing.owned
+    // A container created from these settings and the current local image is
+    // started as-is; anything else is recreated, keeping the data volume.
+    const reusable = existing.owned
       && (existing.state === 'stopped' || existing.state === 'created' || existing.state === 'running')
       && existing.settingsFingerprint === settingsFingerprint(settings)
       && existing.imageId !== null
-      && existing.imageId === await this.localImageId(settings.image)
-    ) {
-      return this.startExisting(existing.state, settings.image, origin, onProgress);
-    }
+      && existing.imageId === await this.localImageId(settings.image);
 
-    onProgress('downloading');
-    await this.ensureImage(settings.image);
+    if (!reusable) {
+      onProgress('downloading');
+      await this.ensureImage(settings.image);
 
-    onProgress('preserving-data');
-    const volume = await this.docker(['volume', 'create', LOCAL_DATA_VOLUME], 30_000);
-    if (volume.code !== 0) {
-      throw new DockerServiceError('Docker could not prepare persistent local data.', cleanDetail(volume));
-    }
-    if (existing.state !== 'absent') {
-      const remove = await this.docker(['container', 'rm', '--force', LOCAL_CONTAINER_NAME], 60_000);
-      if (remove.code !== 0) {
-        throw new DockerServiceError('Docker could not refresh the local Möbius container.', cleanDetail(remove));
+      onProgress('preserving-data');
+      const volume = await this.docker(['volume', 'create', LOCAL_DATA_VOLUME], 30_000);
+      if (volume.code !== 0) {
+        throw new DockerServiceError('Docker could not prepare persistent local data.', cleanDetail(volume));
+      }
+      if (existing.state !== 'absent') {
+        const remove = await this.docker(['container', 'rm', '--force', LOCAL_CONTAINER_NAME], 60_000);
+        if (remove.code !== 0) {
+          throw new DockerServiceError('Docker could not refresh the local Möbius container.', cleanDetail(remove));
+        }
+      }
+
+      onProgress('creating');
+      const create = await this.docker(buildCreateArguments(settings), 10 * 60_000);
+      if (create.code !== 0) {
+        throw new DockerServiceError('Docker could not create the local Möbius.', cleanDetail(create));
       }
     }
 
-    onProgress('creating');
-    const create = await this.docker(buildCreateArguments(settings), 10 * 60_000);
-    if (create.code !== 0) {
-      throw new DockerServiceError('Docker could not create the local Möbius.', cleanDetail(create));
-    }
-
+    // Starting an already running container is a no-op.
     onProgress('starting');
     const start = await this.docker(['container', 'start', LOCAL_CONTAINER_NAME], 60_000);
     if (start.code !== 0) {
@@ -325,34 +316,6 @@ export class DockerService {
     await this.waitUntilReady(origin);
     onProgress('ready');
     this.pullInBackground(settings.image);
-    return {
-      docker: 'ready',
-      dockerVersion: null,
-      container: 'running',
-      detail: 'Your local Möbius is ready.',
-      origin,
-    };
-  }
-
-  // The container already matches the requested settings and the local image:
-  // start it as-is instead of downloading and recreating it.
-  private async startExisting(
-    state: ContainerState,
-    image: string,
-    origin: string,
-    onProgress: (phase: LocalProgressPhase) => void,
-  ): Promise<LocalRuntimeStatus> {
-    if (state !== 'running') {
-      onProgress('starting');
-      const start = await this.docker(['container', 'start', LOCAL_CONTAINER_NAME], 60_000);
-      if (start.code !== 0) {
-        throw new DockerServiceError('Docker could not start the local Möbius.', cleanDetail(start));
-      }
-    }
-    onProgress('waiting');
-    await this.waitUntilReady(origin);
-    onProgress('ready');
-    this.pullInBackground(image);
     return {
       docker: 'ready',
       dockerVersion: null,
