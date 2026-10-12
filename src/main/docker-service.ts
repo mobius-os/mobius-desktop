@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 
 import type {
@@ -17,10 +18,15 @@ import {
 export const LOCAL_CONTAINER_NAME = 'mobius-desktop';
 export const LOCAL_DATA_VOLUME = 'mobius-desktop-data';
 export const OWNERSHIP_LABEL = 'you.mobius.desktop.managed=true';
+// Fingerprint of the create arguments a container was made with. A stopped
+// container whose fingerprint and image still match is started as-is.
+export const SETTINGS_LABEL_KEY = 'you.mobius.desktop.settings';
 
 interface ContainerInspection {
   owned: boolean;
   state: ContainerState;
+  settingsFingerprint: string | null;
+  imageId: string | null;
 }
 
 export class DockerServiceError extends Error {
@@ -54,7 +60,7 @@ function validateFolder(folder: SharedFolder): void {
   }
 }
 
-export function buildCreateArguments(settings: LocalRuntimeSettings): string[] {
+function settingsArguments(settings: LocalRuntimeSettings): string[] {
   if (!Number.isInteger(settings.port) || settings.port < 1024 || settings.port > 65535) {
     throw new DockerServiceError('Choose a local port between 1024 and 65535.');
   }
@@ -85,6 +91,20 @@ export function buildCreateArguments(settings: LocalRuntimeSettings): string[] {
     args.push('--mount', parts.join(','));
   }
   args.push(settings.image);
+  return args;
+}
+
+export function settingsFingerprint(settings: LocalRuntimeSettings): string {
+  return createHash('sha256')
+    .update(JSON.stringify(settingsArguments(settings)))
+    .digest('hex')
+    .slice(0, 32);
+}
+
+export function buildCreateArguments(settings: LocalRuntimeSettings): string[] {
+  const args = settingsArguments(settings);
+  const image = args.pop() as string;
+  args.push('--label', `${SETTINGS_LABEL_KEY}=${settingsFingerprint(settings)}`, image);
   return args;
 }
 
@@ -150,7 +170,7 @@ export class DockerService {
     if (result.code !== 0) {
       const detail = cleanDetail(result).toLowerCase();
       if (detail.includes('no such container') || detail.includes('not found')) {
-        return { owned: false, state: 'absent' };
+        return { owned: false, state: 'absent', settingsFingerprint: null, imageId: null };
       }
       throw new DockerServiceError('Docker could not inspect the local Möbius.', cleanDetail(result));
     }
@@ -158,9 +178,11 @@ export class DockerService {
       const parsed = JSON.parse(result.stdout) as Array<{
         Config?: { Labels?: Record<string, string> };
         State?: { Status?: string };
+        Image?: string;
       }>;
       const container = parsed[0];
-      const owned = container?.Config?.Labels?.['you.mobius.desktop.managed'] === 'true';
+      const labels = container?.Config?.Labels ?? {};
+      const owned = labels['you.mobius.desktop.managed'] === 'true';
       const rawState = container?.State?.Status;
       const state: ContainerState = rawState === 'running'
         ? 'running'
@@ -169,7 +191,12 @@ export class DockerService {
           : rawState === 'exited'
             ? 'stopped'
             : 'unknown';
-      return { owned, state };
+      return {
+        owned,
+        state,
+        settingsFingerprint: labels[SETTINGS_LABEL_KEY] ?? null,
+        imageId: container?.Image ?? null,
+      };
     } catch {
       throw new DockerServiceError('Docker returned an unreadable container description.');
     }
@@ -185,12 +212,25 @@ export class DockerService {
     }
   }
 
-  private async pullImage(image: string): Promise<void> {
+  private async localImageId(image: string): Promise<string | null> {
+    const result = await this.docker(['image', 'inspect', '--format', '{{.Id}}', image], 20_000);
+    return result.code === 0 ? result.stdout.trim() || null : null;
+  }
+
+  // Only a computer without the image waits for a download; otherwise the
+  // local copy is used and pullInBackground keeps it current.
+  private async ensureImage(image: string): Promise<void> {
+    if (await this.localImageId(image)) return;
     const pull = await this.docker(['image', 'pull', image], 10 * 60_000);
     if (pull.code === 0) return;
-    const installed = await this.docker(['image', 'inspect', image], 20_000);
-    if (installed.code === 0) return;
     throw new DockerServiceError('Möbius could not be downloaded.', cleanDetail(pull));
+  }
+
+  // Refreshes the image tag after a start without delaying it. A newer image
+  // no longer matches the container's image id, so the next start recreates
+  // the container from it (keeping the data volume).
+  private pullInBackground(image: string): void {
+    this.docker(['image', 'pull', image], 10 * 60_000).catch(() => undefined);
   }
 
   private async waitUntilReady(origin: string): Promise<void> {
@@ -233,37 +273,49 @@ export class DockerService {
       );
     }
 
-    onProgress('downloading');
-    await this.pullImage(settings.image);
+    const origin = `http://127.0.0.1:${settings.port}`;
+    // A container created from these settings and the current local image is
+    // started as-is; anything else is recreated, keeping the data volume.
+    const reusable = existing.owned
+      && (existing.state === 'stopped' || existing.state === 'created' || existing.state === 'running')
+      && existing.settingsFingerprint === settingsFingerprint(settings)
+      && existing.imageId !== null
+      && existing.imageId === await this.localImageId(settings.image);
 
-    onProgress('preserving-data');
-    const volume = await this.docker(['volume', 'create', LOCAL_DATA_VOLUME], 30_000);
-    if (volume.code !== 0) {
-      throw new DockerServiceError('Docker could not prepare persistent local data.', cleanDetail(volume));
-    }
-    if (existing.state !== 'absent') {
-      const remove = await this.docker(['container', 'rm', '--force', LOCAL_CONTAINER_NAME], 60_000);
-      if (remove.code !== 0) {
-        throw new DockerServiceError('Docker could not refresh the local Möbius container.', cleanDetail(remove));
+    if (!reusable) {
+      onProgress('downloading');
+      await this.ensureImage(settings.image);
+
+      onProgress('preserving-data');
+      const volume = await this.docker(['volume', 'create', LOCAL_DATA_VOLUME], 30_000);
+      if (volume.code !== 0) {
+        throw new DockerServiceError('Docker could not prepare persistent local data.', cleanDetail(volume));
+      }
+      if (existing.state !== 'absent') {
+        const remove = await this.docker(['container', 'rm', '--force', LOCAL_CONTAINER_NAME], 60_000);
+        if (remove.code !== 0) {
+          throw new DockerServiceError('Docker could not refresh the local Möbius container.', cleanDetail(remove));
+        }
+      }
+
+      onProgress('creating');
+      const create = await this.docker(buildCreateArguments(settings), 10 * 60_000);
+      if (create.code !== 0) {
+        throw new DockerServiceError('Docker could not create the local Möbius.', cleanDetail(create));
       }
     }
 
-    onProgress('creating');
-    const create = await this.docker(buildCreateArguments(settings), 10 * 60_000);
-    if (create.code !== 0) {
-      throw new DockerServiceError('Docker could not create the local Möbius.', cleanDetail(create));
-    }
-
+    // Starting an already running container is a no-op.
     onProgress('starting');
     const start = await this.docker(['container', 'start', LOCAL_CONTAINER_NAME], 60_000);
     if (start.code !== 0) {
       throw new DockerServiceError('Docker could not start the local Möbius.', cleanDetail(start));
     }
 
-    const origin = `http://127.0.0.1:${settings.port}`;
     onProgress('waiting');
     await this.waitUntilReady(origin);
     onProgress('ready');
+    this.pullInBackground(settings.image);
     return {
       docker: 'ready',
       dockerVersion: null,

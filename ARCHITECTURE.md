@@ -24,7 +24,12 @@ the sender and every argument even though the local renderer is packaged code.
   saved deployment list.
 - `DockerService` calls the Docker CLI with argument arrays (never a shell),
   recognizes only containers carrying the launcher-owned label, preserves the
-  named data volume, and reports typed progress and failure outcomes.
+  named data volume, and reports typed progress and failure outcomes. An
+  existing container whose settings fingerprint label and image id still match
+  is started as-is; otherwise it is recreated from the local image. Only a
+  computer without the image waits for a download; after each start the image
+  is refreshed in the background, and a newer image is picked up by the next
+  start.
 - `WindowManager` owns the launcher window and one sandboxed Möbius window per
   selected instance. Browser partitions isolate cookies between deployments.
 - Every saved deployment also has a system-browser fallback. This keeps the
